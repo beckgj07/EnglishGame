@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>精灵训练家 · 学习冒险</title>
 <!--
   ============================================================
@@ -15,6 +15,20 @@
   ============================================================
 -->
 <style>
+/* ============ v3.0 iPad 适配 :root token（仅新增变量，手机版不引用、零行为影响） ============
+   侧栏宽 --sidebar-w:120px 为唯一权威值：.tabbar 宽 / body 让位 padding / #toast 偏移三处同源 */
+:root{
+  --app-max-w-tablet:700px;   /* iPad 竖屏 #app 上限（游有方案 700，覆盖 iPad mini 744 竖屏） */
+  --app-max-w-land:960px;     /* iPad 横屏 #app 上限 */
+  --pad-gutter-md:28px;       /* iPad 竖屏左右页边距 */
+  --pad-gutter-lg:36px;       /* iPad 横屏左右页边距 */
+  --sidebar-w:120px;          /* 横屏左侧导航栏宽（甄塑之规格） */
+  /* 本次新增规则用到的硬编码色收敛（值与原色一致，纯收敛不改视觉） */
+  --c-line:#6b5644;
+  --c-card:#fffdf6;
+  --c-sel:#fff3cf;
+  --wob-b:18px 225px 18px 255px/255px 18px 225px 18px;  /* 现 .wob2/.card 族圆角 */
+}
 /* ============ 手绘风基础样式（设计文档第六节：蜡笔彩铅感） ============ */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 html,body{height:100%;overscroll-behavior:none}
@@ -447,6 +461,163 @@ button:active,.btn:active,.opt:active,.chip:active,.node:active,.mod-btn:active,
   transform:scale(.97);opacity:.85}
 .dex-more{display:none;text-align:center;color:#b0a08c;font-size:.85rem;padding:12px 0 20px}
 .dex-cell .de{font-size:.68rem;color:#8a715c;font-family:Georgia,serif}
+
+/* ============================================================
+   v3.0 iPad 适配（iPad布局设计-v1 + iPad视觉规格-v1，制作人裁定版）
+   断点：≥701px 竖屏档（覆盖 iPad mini 744）/ ≥1024px+landscape 横屏档
+   手机版（<701px）规则零改动：本块全部为「追加覆盖」，不改任何既有声明行；
+   不改 JS / 存档 / 题库；HTML 结构零调整（目标达成）
+   ============================================================ */
+
+/* ---------- iPad 竖屏档（低风险底座：加宽 + 加列 + 放大，导航形态不变） ---------- */
+@media (min-width:701px){
+  /* 壳层：560→700 加宽，页边距 24/28/48（甄塑之 §二） */
+  #app{max-width:var(--app-max-w-tablet);padding:24px var(--pad-gutter-md) 48px}
+  body.tabbed #app{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+  .tabbar{max-width:var(--app-max-w-tablet)}
+  .tabbar .tab{min-height:64px;font-size:.95rem;gap:4px}
+  .tabbar .tab .ti{font-size:1.7rem}
+
+  /* 字号阶梯 ×1.15（甄塑之 §三 竖屏列） */
+  h1.title{font-size:2.3rem}
+  .subtitle{font-size:1.15rem}
+  .home-greet h2{font-size:1.45rem}
+  .btn{font-size:1.3rem;padding:16px 28px}
+  .btn.big{font-size:1.55rem}
+  .big-cta{font-size:1.75rem;min-height:76px}
+  .big-cta small{font-size:1rem}
+  .q-word{font-size:2.4rem}
+  .pz-word{font-size:2.65rem}
+  .q-emoji{font-size:4.5rem}
+  .opt.txt{font-size:1.5rem}
+  .card h3{font-size:1.5rem}
+  .island h3{font-size:1.5rem}
+  .island-node .head h3{font-size:1.5rem}
+  .tp{font-size:.95rem}
+  .dex-cell .di{font-size:.95rem}
+
+  /* 触摸目标（甄塑之 §四：可点 ≥52px、相邻间距 ≥12px；chip 收敛到筛选场景，
+     避免伙伴页/设置页小型标签 chip 被放大破版） */
+  .opt{min-height:80px}
+  .opt.art{min-height:96px}
+  .btn,.mod-btn{min-height:56px}
+  .node{width:88px;min-height:72px}
+  .tile{width:56px;height:56px;font-size:1.5rem}
+  .chip-row .chip{min-height:44px;padding:10px 18px;font-size:.95rem}
+  .dex-cell{min-height:64px}
+  .spk-btn{width:44px;height:44px}
+  .spk-btn svg{width:18px;height:18px}
+  .dlg-btn{height:52px}
+  .pact{height:64px}
+  .opts{gap:16px}
+  .level-row{gap:12px}
+  .pet-actions{gap:12px}
+  .chip-row{gap:10px}
+
+  /* 栅格与卡片（间距 ×1.5、投影偏移 4px→5px，贴纸浮起感） */
+  .dex-grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px}
+  .report-grid{gap:14px}
+  .card{flex:1 1 200px;max-width:260px}
+  .memgrid{max-width:560px}
+  .mcard{height:96px}
+  .q-card{padding:26px 24px}
+  .island{padding:18px 20px;box-shadow:0 5px 0 rgba(107,86,68,.5)}
+  .island-node{padding:14px 18px;box-shadow:0 5px 0 rgba(107,86,68,.5)}
+  .home-card{padding:18px 20px;box-shadow:0 5px 0 rgba(107,86,68,.5)}
+  .mine-row{padding:18px 20px}
+  .rpass{padding:18px 24px}
+  .dex-card{padding:20px 18px}
+  .mod-btn{padding:16px 12px;box-shadow:0 5px 0 var(--c-line)}
+
+  /* 首页十模块 3→4 列：唯一需要 !important 处（覆盖 JS 内联
+     style="grid-template-columns:1fr 1fr 1fr;gap:8px"） */
+  .mod-grid{grid-template-columns:repeat(4,1fr)!important;gap:12px!important}
+}
+
+/* ---------- iPad 横屏档（≥1024 + landscape）：底部 tab → 左侧导航栏 120px ---------- */
+@media (min-width:1024px) and (orientation:landscape){
+  /* 侧栏：.tabbar 原为 position:fixed，纯 CSS 改竖排左缘；仅 Tab 屏存在，
+     二级页无导航是刻意设计（答题防误触）；底色/描边沿用 tabbar，border-top→border-right */
+  .tabbar{
+    left:0;right:auto;top:0;bottom:0;width:var(--sidebar-w);max-width:none;margin:0;
+    flex-direction:column;justify-content:flex-start;
+    background:var(--c-card);border-top:none;border-right:3px solid var(--c-line);
+    padding:calc(16px + env(safe-area-inset-top)) 8px calc(16px + env(safe-area-inset-bottom)) env(safe-area-inset-left);
+  }
+  .tabbar .tab{
+    flex:none;width:100%;min-height:64px;font-size:1.05rem;gap:4px;
+    border:3px solid transparent;border-radius:var(--wob-b);
+  }
+  .tabbar .tab .ti{font-size:2rem}
+  .tabbar .tab.on{background:var(--c-sel);border-color:var(--c-line)}
+
+  /* 主区让位：body padding-left 与侧栏同源（120px + safe-area-left），
+     二级页同样让位，全 App 导航位形一致 */
+  body{padding-left:calc(var(--sidebar-w) + env(safe-area-inset-left))}
+  body.tabbed #app{padding-bottom:56px}
+  #app{max-width:var(--app-max-w-land);padding:28px calc(var(--pad-gutter-lg) + env(safe-area-inset-right)) 56px var(--pad-gutter-lg)}
+
+  /* toast 居中修正：偏移半个栏宽（避开侧栏） */
+  #toast{left:calc(50% + var(--sidebar-w)/2)}
+
+  /* 字号阶梯 ×1.25 / 触摸取 1024 档上限值（甄塑之 §三、§四） */
+  h1.title{font-size:2.6rem}
+  .subtitle{font-size:1.25rem}
+  .home-greet h2{font-size:1.55rem}
+  .btn{font-size:1.45rem}
+  .btn.big{font-size:1.7rem}
+  .big-cta{font-size:1.9rem;min-height:84px}
+  .q-word{font-size:2.75rem}
+  .pz-word{font-size:2.9rem}
+  .q-emoji{font-size:5rem}
+  .opt{min-height:88px}
+  .opt.art{min-height:96px}
+  .opt.txt{font-size:1.7rem}
+  .card h3{font-size:1.6rem}
+  .island h3{font-size:1.6rem}
+  .island-node .head h3{font-size:1.6rem}
+  .btn,.mod-btn{min-height:60px}
+  .node{width:96px;min-height:80px}
+  .tile{width:64px;height:64px;font-size:1.7rem}
+  .tp{font-size:1rem}
+  .dex-cell .di{font-size:1rem}
+
+  /* 宽屏增益（甄塑之 §八.11 + 游有方 §4.2/§六） */
+  .letter-zone{max-width:480px;margin-left:auto;margin-right:auto}
+  .energy-wrap{max-width:480px}
+  .dlg-card{width:min(84%,480px)}
+  .evo-step{min-width:120px}
+  .evo-step .pet-art{width:120px;height:120px}
+  .dex-img.big{width:200px;height:200px}
+  .les-en{font-size:15px}
+  .les-zh{font-size:13px}
+  .dex-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+  .memgrid{max-width:640px}
+  .mcard{height:110px}
+
+  /* 答题屏：单列居中只放大，不拆双栏（儿童视线不跳，体验红线） */
+  .q-card{max-width:720px;margin-left:auto;margin-right:auto}
+
+  /* home 双栏：问候通栏；两张状态卡各占一列；CTA/模块/注脚通栏
+     （#scr-home 子元素顺序契约：greet→card×2→big-cta→mod-grid→subtitle；
+      末尾 JS 追加的 .tabbar 为 fixed 定位，不参与 grid 排版） */
+  #scr-home{display:grid;grid-template-columns:1.1fr 1fr;column-gap:20px;align-content:start}
+  #scr-home>.home-greet{grid-column:1/-1;grid-row:1}
+  #scr-home>.home-card{grid-row:2}
+  #scr-home>.big-cta{grid-column:1/-1;grid-row:3}
+  #scr-home>.mod-grid{grid-column:1/-1;grid-row:4}
+  #scr-home>.subtitle{grid-column:1/-1;grid-row:5}
+
+  /* mine 双栏：统计卡（div 1-4）左列；入口行 ×2 + 设置卡（div 5-7）右列
+     （#scr-mine 子元素顺序契约：title→home-card×4→mine-row×2→home-card(设置)→subtitle） */
+  #scr-mine{display:grid;grid-template-columns:1.1fr 1fr;column-gap:20px;align-content:start}
+  #scr-mine>.title{grid-column:1/-1;grid-row:1}
+  #scr-mine>div:nth-of-type(-n+4){grid-column:1}
+  #scr-mine>div:nth-of-type(5){grid-column:2;grid-row:2}
+  #scr-mine>div:nth-of-type(6){grid-column:2;grid-row:3}
+  #scr-mine>div:nth-of-type(7){grid-column:2;grid-row:4}
+  #scr-mine>.subtitle{grid-column:1/-1;grid-row:6}
+}
 </style>
 </head>
 <body>
