@@ -1,0 +1,8 @@
+{
+  "appId": "com.jason.englishbuddy",
+  "appName": "精灵训练家",
+  "webDir": "web",
+  "server": {
+    "androidScheme": "https"
+  }
+}

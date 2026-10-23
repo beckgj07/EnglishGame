@@ -1,0 +1,42 @@
+# ============================================================
+# 仓库级 .gitignore（仓库根 = app/）
+# 原则：源码与配置进 git，一切可由工具重新生成的产物不进 git。
+# iOS 细粒度忽略见 ios/.gitignore（cap add ios 自动生成），此处做兜底与补充。
+# ============================================================
+
+# ---- Node ----
+node_modules/
+
+# ---- Capacitor 生成产物（CI 上由 npx cap sync ios 重新生成）----
+# web 资源拷贝：约 129M，严禁进 git（否则仓库肥 134M）
+ios/App/App/public/
+# cap sync 写入原生工程的配置拷贝（源配置在 app/capacitor.config.json）
+ios/App/App/capacitor.config.json
+ios/App/App/config.xml
+# CocoaPods 安装目录与构建产物
+ios/App/Pods/
+ios/App/build/
+ios/App/output/
+ios/App/DerivedData/
+ios/App/Podfile.lock
+# Cordova 插件原生文件（cap sync 生成）
+capacitor-cordova-ios-plugins/
+ios/App/App/capacitor-cordova-ios-plugins/
+
+# ---- Android 构建产物 ----
+android/.gradle/
+android/app/build/
+android/build/
+android/capacitor-cordova-android-plugins/
+android/app/src/main/assets/public/
+android/local.properties
+*.apk
+*.aab
+
+# ---- 发布产物（unsigned ipa / 打包输出）----
+releases/
+*.ipa
+
+# ---- 系统 / 编辑器 ----
+.DS_Store
+*.swp

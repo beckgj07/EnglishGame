@@ -1,0 +1,89 @@
+name: iOS Unsigned Build
+
+# 精灵训练家 — iOS 云端打包（路径 B）
+# 免签构建 unsigned ipa → Windows 端 Sideloadly 签名侧载。
+# 本 workflow 不包含任何签名材料 / 密钥。
+#
+# 说明：仓库根 = app/（.github/workflows 位于 app/ 下），
+#       因此所有步骤的相对路径均以 app/ 为基准。
+
+on:
+  workflow_dispatch: {}          # 手动触发：Actions 页面 Run workflow
+  push:
+    tags:
+      - 'v*-ios'                 # 例：v1.0.0-ios 推送即自动打包
+
+jobs:
+  build-unsigned-ipa:
+    name: Build unsigned IPA (macOS)
+    runs-on: macos-15            # 自带最新 Xcode，支持 iOS 13+ 部署目标
+    timeout-minutes: 60          # 防挂死：npm ci + pod install + xcodebuild 富余
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Verify package-lock.json
+        run: |
+          test -f package-lock.json || { echo "::error::package-lock.json 不存在，无法 npm ci"; exit 1; }
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 关键步骤：cap sync 会
+      #   1) 把 web/ 拷贝为 ios/App/App/public/（.gitignore 已排除，须重新生成）
+      #   2) 把插件 pod（CapacitorApp、CapacitorCommunityTextToSpeech 等）注入
+      #      ios/App/Podfile 的 capacitor_pods 并执行 pod install
+      #   3) 生成 ios/App/App/capacitor.config.json
+      - name: Sync Capacitor iOS project (generates public/ + plugin pods)
+        run: npx cap sync ios
+
+      - name: Show resolved Podfile
+        run: cat ios/App/Podfile
+
+      # 免签构建：关闭代码签名，产物为未签名 .app
+      # 产物路径：<derivedDataPath>/Build/Products/Release-iphoneos/App.app
+      - name: Build unsigned .app (Release / iphoneos)
+        run: |
+          xcodebuild \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath ios/App/build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= \
+            build
+
+      - name: Package unsigned IPA
+        run: |
+          APP_PATH="ios/App/build/Build/Products/Release-iphoneos/App.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "::error::未找到构建产物 $APP_PATH"
+            find ios/App/build -name "*.app" -maxdepth 4 || true
+            exit 1
+          fi
+          rm -rf ios/App/build/Payload
+          mkdir -p ios/App/build/Payload
+          cp -R "$APP_PATH" ios/App/build/Payload/
+          cd ios/App/build
+          rm -f 精灵训练家-unsigned.ipa
+          zip -qry 精灵训练家-unsigned.ipa Payload
+          cd - > /dev/null
+          ls -lh "ios/App/build/精灵训练家-unsigned.ipa"
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          # Windows 端从该 artifact 下载 ipa，用 Sideloadly + Apple ID 签名侧载
+          name: englishbuddy-unsigned-ipa
+          path: ios/App/build/精灵训练家-unsigned.ipa
+          retention-days: 30
+          if-no-files-found: error
