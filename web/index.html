@@ -486,9 +486,10 @@ button:active,.btn:active,.opt:active,.chip:active,.node:active,.mod-btn:active,
   .btn.big{font-size:1.55rem}
   .big-cta{font-size:1.75rem;min-height:76px}
   .big-cta small{font-size:1rem}
-  .q-word{font-size:2.4rem}
-  .pz-word{font-size:2.65rem}
-  .q-emoji{font-size:4.5rem}
+  /* v3.1 竖直自适应：答题关键字号 clamp 挂 vh（max=原 v3.0 值，iPad 竖屏满高不缩，矮窗连续收缩） */
+  .q-word{font-size:clamp(1.8rem,4.6vh,2.4rem);margin:clamp(4px,1vh,8px) 0}
+  .pz-word{font-size:clamp(2rem,5vh,2.65rem)}
+  .q-emoji{font-size:clamp(3rem,8.6vh,4.5rem);margin:clamp(6px,1.2vh,10px) 0}
   .opt.txt{font-size:1.5rem}
   .card h3{font-size:1.5rem}
   .island h3{font-size:1.5rem}
@@ -498,11 +499,11 @@ button:active,.btn:active,.opt:active,.chip:active,.node:active,.mod-btn:active,
 
   /* 触摸目标（甄塑之 §四：可点 ≥52px、相邻间距 ≥12px；chip 收敛到筛选场景，
      避免伙伴页/设置页小型标签 chip 被放大破版） */
-  .opt{min-height:80px}
-  .opt.art{min-height:96px}
+  .opt{min-height:clamp(64px,9.6vh,80px)}
+  .opt.art{min-height:clamp(72px,11.5vh,96px)}
   .btn,.mod-btn{min-height:56px}
   .node{width:88px;min-height:72px}
-  .tile{width:56px;height:56px;font-size:1.5rem}
+  .tile{width:clamp(44px,6.7vh,56px);height:clamp(44px,6.7vh,56px);font-size:clamp(1.2rem,1.8vh,1.5rem)}
   .chip-row .chip{min-height:44px;padding:10px 18px;font-size:.95rem}
   .dex-cell{min-height:64px}
   .spk-btn{width:44px;height:44px}
@@ -520,7 +521,7 @@ button:active,.btn:active,.opt:active,.chip:active,.node:active,.mod-btn:active,
   .card{flex:1 1 200px;max-width:260px}
   .memgrid{max-width:560px}
   .mcard{height:96px}
-  .q-card{padding:26px 24px}
+  .q-card{padding:clamp(14px,3.1vh,26px) 24px}
   .island{padding:18px 20px;box-shadow:0 5px 0 rgba(107,86,68,.5)}
   .island-node{padding:14px 18px;box-shadow:0 5px 0 rgba(107,86,68,.5)}
   .home-card{padding:18px 20px;box-shadow:0 5px 0 rgba(107,86,68,.5)}
@@ -567,18 +568,19 @@ button:active,.btn:active,.opt:active,.chip:active,.node:active,.mod-btn:active,
   .btn{font-size:1.45rem}
   .btn.big{font-size:1.7rem}
   .big-cta{font-size:1.9rem;min-height:84px}
-  .q-word{font-size:2.75rem}
-  .pz-word{font-size:2.9rem}
-  .q-emoji{font-size:5rem}
-  .opt{min-height:88px}
-  .opt.art{min-height:96px}
+  /* v3.1 竖直自适应：横屏档同挂 vh（iPad 横屏 768/834pt 高） */
+  .q-word{font-size:clamp(1.9rem,4.9vh,2.75rem)}
+  .pz-word{font-size:clamp(2.1rem,5.3vh,2.9rem)}
+  .q-emoji{font-size:clamp(3.2rem,9.4vh,5rem)}
+  .opt{min-height:clamp(64px,10.6vh,88px)}
+  .opt.art{min-height:clamp(72px,11.5vh,96px)}
   .opt.txt{font-size:1.7rem}
   .card h3{font-size:1.6rem}
   .island h3{font-size:1.6rem}
   .island-node .head h3{font-size:1.6rem}
   .btn,.mod-btn{min-height:60px}
   .node{width:96px;min-height:80px}
-  .tile{width:64px;height:64px;font-size:1.7rem}
+  .tile{width:clamp(44px,7.6vh,64px);height:clamp(44px,7.6vh,64px);font-size:clamp(1.3rem,2vh,1.7rem)}
   .tp{font-size:1rem}
   .dex-cell .di{font-size:1rem}
 
@@ -593,7 +595,7 @@ button:active,.btn:active,.opt:active,.chip:active,.node:active,.mod-btn:active,
   .les-zh{font-size:13px}
   .dex-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
   .memgrid{max-width:640px}
-  .mcard{height:110px}
+  .mcard{height:clamp(72px,12.9vh,110px)}
 
   /* 答题屏：单列居中只放大，不拆双栏（儿童视线不跳，体验红线） */
   .q-card{max-width:720px;margin-left:auto;margin-right:auto}
@@ -617,6 +619,36 @@ button:active,.btn:active,.opt:active,.chip:active,.node:active,.mod-btn:active,
   #scr-mine>div:nth-of-type(6){grid-column:2;grid-row:3}
   #scr-mine>div:nth-of-type(7){grid-column:2;grid-row:4}
   #scr-mine>.subtitle{grid-column:1/-1;grid-row:6}
+}
+
+/* ============================================================
+   v3.1 答题屏竖直自适应（问题：Mac 壳 785pt / iPad 横屏 768/834pt 高时，
+   ≥701px 放大规格纵向叠加溢出视口，要滚动才能看全题）
+   策略：a) 关键答题尺寸 clamp 挂 vh（上两媒体块已改，max=原值不回退）
+        b) #scr-play 弹性满屏：负 margin 抵消 #app 底部 tab 预留，
+           min-height=100dvh-顶部内边距；正常高度内容自然收敛不出滚动条
+        c) 保底：height<620px 极端矮窗解除满屏约束，允许滚动防裁切
+   手机版（<701px）与非答题屏（home/map/dex 等）规则零改动
+   ============================================================ */
+@media (min-width:701px){
+  /* 答题屏（二级页）body 无 .tabbed（show() 会移除），#app 底距为非 tab 规则值：
+     竖屏 48px / 横屏 56px，min-height 扣除 #app 上下内边距即满屏不滚动 */
+  #scr-play.active{display:flex;flex-direction:column;
+    min-height:calc(100vh - 72px);min-height:calc(100dvh - 72px)}
+  /* 答题屏内非题目元素间距压缩（仅答题屏生效，选择器带 #scr-play 不外溢） */
+  #scr-play.active>.backbar{margin-bottom:clamp(4px,1vh,10px)}
+  #scr-play.active>.progress-line{margin:clamp(4px,1.4vh,12px) 0}
+  #scr-play .opts{margin-top:clamp(8px,1.7vh,14px)}
+  #scr-play .pet-art{width:clamp(72px,11vh,150px);height:clamp(72px,11vh,150px)}
+  #scr-play .q-art{width:clamp(88px,16vh,136px);height:clamp(88px,16vh,136px)}
+  .letter-zone{min-height:clamp(48px,7.7vh,64px)}
+}
+@media (min-width:1024px) and (orientation:landscape){
+  #scr-play.active{min-height:calc(100vh - 84px);min-height:calc(100dvh - 84px)}
+}
+/* 保底：极端矮窗（<620px 高）解除满屏约束，允许滚动防裁切 */
+@media (min-width:701px) and (max-height:620px){
+  #scr-play.active{min-height:0}
 }
 </style>
 </head>
